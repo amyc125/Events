@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,17 +43,25 @@ namespace Events
                 .Build();
             try
             {
-                Console.WriteLine("\nProducer loop started...\n\n");
-                for (var character = 'A'; character <= 'Z'; character++)
+                // Associate the instance of 'EventLog' with local System Log.
+                EventLog myEventLog = new EventLog("System", ".");
+
+                EventLogEntryCollection myLogEntryCollection=myEventLog.Entries;
+                int myCount =myLogEntryCollection.Count;
+                // Iterate through all 'EventLogEntry' instances in 'EventLog'.
+                for(int i=myCount-1;i>-1;i--)
                 {
-                    var message = $"Character #{character} sent at {DateTime.Now:yyyy-MM-dd_HH:mm:ss}";
+                    EventLogEntry myLogEntry = myLogEntryCollection[i];
+                        // Display Source of the event.
+                        // Modify the message to build whatever properties you want
+                    var message = myLogEntry.Source+" was the source of last event of type " +myLogEntry.EntryType;
 
                     var deliveryReport = await producer.ProduceAsync(topicName,
-                        new Message<long, string>
-                        {
-                            Key = DateTime.UtcNow.Ticks,
-                            Value = message
-                        });
+                    new Message<long, string>
+                    {
+                        Key = DateTime.UtcNow.Ticks,
+                        Value = message
+                    });
 
                     Console.WriteLine($"Message sent (value: '{message}'). Delivery status: {deliveryReport.Status}");
                     if (deliveryReport.Status != PersistenceStatus.Persisted)
@@ -61,8 +70,6 @@ namespace Events
                         Console.WriteLine(
                             $"ERROR: Message not ack'd by all brokers (value: '{message}'). Delivery status: {deliveryReport.Status}");
                     }
-
-                    // Thread.Sleep(TimeSpan.FromSeconds(2));
                 }
             }
             catch (ProduceException<long, string> e)
