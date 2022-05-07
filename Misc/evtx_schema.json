@@ -1,0 +1,7 @@
+{
+    "source_app": "myLogEntry.Source",
+    "machine_name": "myLogEntry.MachineName",
+    "time_generated": "myLogEntry.TimeGenerated",
+    "event_type": "myLogEntry.EventType",
+    "instance_id": "myLogEntry.InstanceId"
+}
