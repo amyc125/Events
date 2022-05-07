@@ -1,0 +1,16 @@
+- https://cllax.com/top-6-event-log-analyzer-tools-and-software-for-windows.html
+List of 6 appplications that utilise windows event logs 
+Some really good pros to event log systems such as centralising logs, real-time alerting, retention (audit purposes), forensics etc
+
+
+- https://andreafortuna.org/2017/10/20/windows-event-logs-in-forensic-analysis/
+Types of logs:
+- Information
+- Warning
+- Error
+- Security
+
+
+- https://www.ittsystems.com/best-event-log-analysis-tools/
+
+- 
