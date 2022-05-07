@@ -47,6 +47,7 @@ namespace Events
                 EventLog myEventLog = new EventLog("System", ".");
 
                 EventLogEntryCollection myLogEntryCollection=myEventLog.Entries;
+
                 int myCount =myLogEntryCollection.Count;
                 // Iterate through all 'EventLogEntry' instances in 'EventLog'.
                 for(int i=myCount-1;i>-1;i--)
@@ -54,7 +55,9 @@ namespace Events
                     EventLogEntry myLogEntry = myLogEntryCollection[i];
                         // Display Source of the event.
                         // Modify the message to build whatever properties you want
-                    var message = myLogEntry.Source+" was the source of last event of type " +myLogEntry.EntryType;
+                    var message = myLogEntry.Source+" was the source of last event of type " +myLogEntry.EntryType +myLogEntry.instanceId +myLogEntry.TimeGenerated +myLogEntry.MachineName;
+
+                    
 
                     var deliveryReport = await producer.ProduceAsync(topicName,
                     new Message<long, string>
