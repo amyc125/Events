@@ -55,22 +55,24 @@ namespace Events
                         // Display Source of the event.
 
 
-                    //var message = myLogEntry.Source+" was the source of last event of type " +myLogEntry.EntryType +myLogEntry.instanceId +myLogEntry.TimeGenerated +myLogEntry.MachineName;
+                    var message = myLogEntry.Source+" was the source of last event of type " +myLogEntry.EntryType;
+                    
+                    //+myLogEntry.TimeGenerated +myLogEntry.MachineName;
 
-                    dynamic Event = new JObject();
-                    Event.source = myLogEntry.Source;
-                    Event.entryType = myLogEntry.EntryType;
-                    Event.instanceId = myLogEntry.instanceId;
-                    Event.timeGenerated = myLogEntry.TimeGenerated;
-                    Event.machineName = myLogEntry.MachineName;
+                    // dynamic Event = new JObject();
+                    // Event.source = myLogEntry.Source;
+                    // Event.entryType = myLogEntry.EntryType;
+                    // Event.instanceId = myLogEntry.instanceId;
+                    // Event.timeGenerated = myLogEntry.TimeGenerated;
+                    // Event.machineName = myLogEntry.MachineName;
 
-                    Console.WriteLine(Event.ToString());
+                    //Console.WriteLine(Event.ToString());
 
                     var deliveryReport = await producer.ProduceAsync(topicName,
                     new Message<long, string>
                     {
                         Key = DateTime.UtcNow.Ticks,
-                        Value = Event
+                        Value = message
                     });
 
                     Console.WriteLine($"Message sent (value: '{message}'). Delivery status: {deliveryReport.Status}");
