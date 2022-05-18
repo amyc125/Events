@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using Confluent.Kafka;
+using System.Text.Json;
 
 namespace Events
 {
@@ -34,8 +34,8 @@ namespace Events
 
         public async Task StartSendingMessages(string topicName)
         {
-            using var producer = new ProducerBuilder<long, string>(_producerConfig)
-                .SetKeySerializer(Serializers.Int64)
+            using var producer = new ProducerBuilder<string, string>(_producerConfig)
+                .SetKeySerializer(Serializers.Utf8)
                 .SetValueSerializer(Serializers.Utf8)
                 .SetLogHandler((_, message) =>
                     Console.WriteLine($"Facility: {message.Facility}-{message.Level} Message: {message.Message}"))
@@ -55,36 +55,39 @@ namespace Events
                         // Display Source of the event.
 
 
-                    var message = myLogEntry.Source+" was the source of last event of type " +myLogEntry.EntryType;
+                    //var message = myLogEntry.Source+" was the source of last event of type " +myLogEntry.EntryType;
                     
                     //+myLogEntry.TimeGenerated +myLogEntry.MachineName;
 
-                    // dynamic Event = new JObject();
-                    // Event.source = myLogEntry.Source;
-                    // Event.entryType = myLogEntry.EntryType;
-                    // Event.instanceId = myLogEntry.instanceId;
-                    // Event.timeGenerated = myLogEntry.TimeGenerated;
-                    // Event.machineName = myLogEntry.MachineName;
+                    Event event1 = new Event
+                    {
+                        Source = myLogEntry.Source, 
+                        EntryType = myLogEntry.EntryType.ToString()
+                    };
 
-                    //Console.WriteLine(Event.ToString());
+                    string json = JsonSerializer.Serialize(event1);
+
+                    //Console.WriteLine(json);
+
+                    //Console.WriteLine(message.ToString());
 
                     var deliveryReport = await producer.ProduceAsync(topicName,
-                    new Message<long, string>
+                    new Message<string, string>
                     {
-                        Key = DateTime.UtcNow.Ticks,
-                        Value = message
+                        Key = "UUID",
+                        Value = json
                     });
 
-                    Console.WriteLine($"Message sent (value: '{message}'). Delivery status: {deliveryReport.Status}");
+                    Console.WriteLine($"Message sent (value: '{event1}'). Delivery status: {deliveryReport.Status}");
                     if (deliveryReport.Status != PersistenceStatus.Persisted)
                     {
                         // delivery might have failed after retries. This message requires manual processing.
                         Console.WriteLine(
-                            $"ERROR: Message not ack'd by all brokers (value: '{message}'). Delivery status: {deliveryReport.Status}");
+                            $"ERROR: Message not ack'd by all brokers (value: '{event1}'). Delivery status: {deliveryReport.Status}");
                     }
                 }
             }
-            catch (ProduceException<long, string> e)
+            catch (ProduceException<string, string> e)
             {
                 // Log this message for manual processing.
                 Console.WriteLine($"Permanent error: {e.Message} for message (value: '{e.DeliveryResult.Value}')");

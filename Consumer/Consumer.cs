@@ -25,8 +25,8 @@ namespace Events
 
         public void StartReceivingMessages(string topicName)
         {
-            using var consumer = new ConsumerBuilder<long, string>(_consumerConfig)
-                .SetKeyDeserializer(Deserializers.Int64)
+            using var consumer = new ConsumerBuilder<string, string>(_consumerConfig)
+                .SetKeyDeserializer(Deserializers.Utf8)
                 .SetValueDeserializer(Deserializers.Utf8)
                 .SetErrorHandler((_, e) => Console.WriteLine($"Error: {e.Reason}"))
                 .Build();
@@ -39,14 +39,16 @@ namespace Events
                     var result =
                         consumer.Consume(
                             TimeSpan.FromMilliseconds(_consumerConfig.MaxPollIntervalMs - 1000 ?? 250000));
-                    var message = result?.Message?.Value;
+                    var message = result.Message.Value;
+                    Console.WriteLine(message);
+
                     if (message == null)
                     {
                         continue;
                     }
 
                     Console.WriteLine(
-                        $"Received: {result.Message.Key}:{message} from partition: {result.Partition.Value}");
+                        $"Received: {result.Message.Key}:{message}");
 
                     consumer.Commit(result);
                     consumer.StoreOffset(result);
