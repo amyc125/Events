@@ -66,7 +66,7 @@ namespace Events
                     };
 
                     string json = JsonSerializer.Serialize(event1);
-
+                    
                     //Console.WriteLine(json);
 
                     //Console.WriteLine(message.ToString());
